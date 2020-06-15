@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_pokemon">
+
+    <fragment
+        android:id="@+id/nav_item"
+        android:name="com.vivek.pokedex.ui.items.ItemFragment"
+        android:label="Items"
+        tools:layout="@layout/fragment_item" />
+
+    <fragment
+        android:id="@+id/nav_pokemon"
+        android:name="com.vivek.pokedex.ui.pokemons.Pokemons"
+        android:label="@string/menu_gallery"
+        tools:layout="@layout/fragment_pokemon" />
+
+    <fragment
+        android:id="@+id/nav_favourites"
+        android:name="com.vivek.pokedex.ui.favourites.FavouritesFragment"
+        android:label="Favourites"
+        tools:layout="@layout/fragment_favourites" />
+
+    <fragment
+        android:id="@+id/nav_region"
+        android:name="com.vivek.pokedex.ui.region.RegionFragment"
+        android:label="@string/menu_tools"
+        tools:layout="@layout/fragment_region" />
+
+    <fragment
+        android:id="@+id/nav_location"
+        android:name="com.vivek.pokedex.ui.location.LocationFragment"
+        android:label="Locations"
+        tools:layout="@layout/fragment_location" />
+
+    <fragment
+        android:id="@+id/nav_type"
+        android:name="com.vivek.pokedex.ui.Type.TypeFragment"
+        android:label="Type"
+        tools:layout="@layout/fragment_type" />
+</navigation>
