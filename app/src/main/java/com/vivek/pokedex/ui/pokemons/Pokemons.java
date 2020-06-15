@@ -11,12 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -26,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.vivek.pokedex.Api;
+import com.vivek.pokedex.Db_Handler.DbHandler;
 import com.vivek.pokedex.FrontActivity;
 import com.vivek.pokedex.PokeActivity;
 import com.vivek.pokedex.R;
@@ -35,6 +39,7 @@ import com.vivek.pokedex.models.PokemonRequest;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -57,7 +62,12 @@ public class Pokemons extends Fragment {
     int offset;
     Retrofit retrofit;
     Boolean isScrolling=false;
+    ProgressBar progressBar;
+    ConstraintLayout constraintLayout;
+    ImageView favourite;
 
+
+    List<Pokemon> FavpokemonList ;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -76,53 +86,58 @@ public class Pokemons extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+        favourite = root.findViewById(R.id.star);
+        final DbHandler db = new DbHandler(getContext());
+        FavpokemonList =  db.getFavPokemons();
+
+
         FrontActivity.frangment = 0;
+        constraintLayout = root.findViewById(R.id.pokeLayout);
+
 
         //recyclerView Initialisation
         recyclerView = root.findViewById(R.id.pokemonList);
         recyclerView.setHasFixedSize(true);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//
+//                if (dy > 0) {
+//                    int visibleItemCount = layoutManager.getChildCount();
+//                    int totalItemCount = layoutManager.getItemCount();
+//                    int pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
+//
+//                    if (isScrolling) {
+//                        if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+//
+//
+//                            isScrolling = false;
+//                            offset += 15;
+//                            obtainPokemons(offset);
+//                        }
+//                    }
+//                }
+//                else{
+//                    int visibleItemCount = layoutManager.getChildCount();
+//                    int totalItemCount = layoutManager.getItemCount();
+//                    int pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
+//
+//                    if (isScrolling) {
+//                        if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
+//
+//
+//                            isScrolling = false;
+//                            offset -= 15;
+//                            obtainPokemons(offset);
+//                        }
+//                    }
+//                }
+//            }
+//        });
 
-                if (dy > 0) {
-                    int visibleItemCount = layoutManager.getChildCount();
-                    int totalItemCount = layoutManager.getItemCount();
-                    int pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
-
-                    if (isScrolling) {
-                        if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-
-
-                            isScrolling = false;
-                            offset += 15;
-                            obtainPokemons(offset);
-                        }
-                    }
-                }
-                else{
-                    int visibleItemCount = layoutManager.getChildCount();
-                    int totalItemCount = layoutManager.getItemCount();
-                    int pastVisibleItems = layoutManager.findFirstVisibleItemPosition();
-
-                    if (isScrolling) {
-                        if ((visibleItemCount + pastVisibleItems) >= totalItemCount) {
-
-
-                            isScrolling = false;
-                            offset -= 15;
-                            obtainPokemons(offset);
-                        }
-                    }
-                }
-            }
-        });
-        offset=0;
-        isScrolling=true;
-        obtainPokemons(offset);
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line,arrayList);
 //        pokemonList = root.findViewById(R.id.pokemonList);
         pokemonArrayList = new ArrayList<>();
@@ -145,15 +160,8 @@ public class Pokemons extends Fragment {
 //
 //            }
 //        });
-
-
-
-
-        return root;
-    }
-    public void obtainPokemons(int offset){
         api = retrofit.create(Api.class);
-        Call<PokemonRequest> call = api.obtenerListPokemon(20,offset);
+        Call<PokemonRequest> call = api.obtenerListPokemon(10,0);
         call.enqueue(new Callback<PokemonRequest>() {
             @Override
             public void onResponse(Call<PokemonRequest> call, Response<PokemonRequest> response) {
@@ -161,11 +169,13 @@ public class Pokemons extends Fragment {
                     Log.d("Vivek",Integer.toString(response.code()));
 
                 }
+
                 isScrolling=true;
                 PokemonRequest pokemonRequest = response.body();
                 ArrayList<Pokemon> listPokemon = pokemonRequest.getResults();
                 arrayList.clear();
                 for(Pokemon pokemon: listPokemon){
+
 
                     String name = pokemon.getName();
                     String url = pokemon.getUrl();
@@ -188,6 +198,9 @@ public class Pokemons extends Fragment {
 
 
 
+
+
+
             }
 
             @Override
@@ -198,7 +211,12 @@ public class Pokemons extends Fragment {
 
 
         });
+
+
+
+        return root;
     }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

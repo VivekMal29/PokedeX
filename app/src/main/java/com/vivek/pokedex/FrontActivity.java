@@ -75,8 +75,6 @@ public class FrontActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
 
 
-
-
     }
 
     @Override
@@ -95,16 +93,15 @@ public class FrontActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(frangment==0){
-                Pokemons.recyclerViewAdapter.getFilter().filter(newText);}
-                else if(frangment==2){
-                ItemFragment.recyclerViewAdapterItem.getFilter().filter(newText);}
-                else if(frangment==1){
-                LocationFragment.recylerViewAdapterLocation.getFilter().filter(newText);}
-                else if(frangment==3){
+                if (frangment == 0) {
+                    Pokemons.recyclerViewAdapter.getFilter().filter(newText);
+                } else if (frangment == 2) {
+                    ItemFragment.recyclerViewAdapterItem.getFilter().filter(newText);
+                } else if (frangment == 1) {
+                    LocationFragment.recylerViewAdapterLocation.getFilter().filter(newText);
+                } else if (frangment == 3) {
                     TypeFragment.recyclerViewAdapterType.getFilter().filter(newText);
-                }
-                else if(frangment==4){
+                } else if (frangment == 4) {
                     RegionFragment.recyclerViewAdapterRegion.getFilter().filter(newText);
                 }
 
@@ -120,7 +117,6 @@ public class FrontActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-
 
 
 }

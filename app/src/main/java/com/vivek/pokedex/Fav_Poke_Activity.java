@@ -42,11 +42,10 @@ public class Fav_Poke_Activity extends AppCompatActivity {
     Button delelePoke;
     byte[] bytes;
 
-    FavouritesFragment frg ;
+    FavouritesFragment frg;
     Button share;
     Bitmap bitmap;
     Pokemon pokemon;
-
 
 
     @Override
@@ -55,7 +54,7 @@ public class Fav_Poke_Activity extends AppCompatActivity {
         setContentView(R.layout.activity_fav__poke_);
 
         final Intent intent = getIntent();
-        Bundle b= intent.getExtras();
+        Bundle b = intent.getExtras();
 
 
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -63,7 +62,7 @@ public class Fav_Poke_Activity extends AppCompatActivity {
 
         final DbHandler db = new DbHandler(this);
 
-        if(b!=null){
+        if (b != null) {
             position = (int) b.get("MSG");
         }
         pokeName = findViewById(R.id.pokeName);
@@ -74,15 +73,15 @@ public class Fav_Poke_Activity extends AppCompatActivity {
         delelePoke = findViewById(R.id.deletePokemon);
         share = findViewById(R.id.shareImage);
 
-         pokemon = db.getPokemon(position);
+        pokemon = db.getPokemon(position);
 
         Log.d("fav", String.valueOf(pokemon.getPrimaryId()));
         Log.d("fav", String.valueOf(pokemon.getId()));
-        Log.d("fav",pokemon.getName());
+        Log.d("fav", pokemon.getName());
         Log.d("fav", String.valueOf(pokemon.getWeight()));
         Log.d("fav", String.valueOf(pokemon.getHeight()));
         Log.d("fav", String.valueOf(pokemon.getBase_experience()));
-        Log.d("fav",String.valueOf(pokemon.getBytes()));
+        Log.d("fav", String.valueOf(pokemon.getBytes()));
 
         pokeName.setText(pokemon.getName());
         pokeHeight.setText(Integer.toString(pokemon.getHeight()));
@@ -95,7 +94,7 @@ public class Fav_Poke_Activity extends AppCompatActivity {
         pokeImage.setImageBitmap(bitmap);
         frg = new FavouritesFragment();
         frg = (FavouritesFragment) getSupportFragmentManager().findFragmentById(R.id.nav_favourites);
-        final Intent intent1 = new Intent(this,FrontActivity.class);
+        final Intent intent1 = new Intent(this, FrontActivity.class);
         delelePoke.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,20 +112,20 @@ public class Fav_Poke_Activity extends AppCompatActivity {
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("image/png");
 
-                File f = new File(getExternalCacheDir(),  "temporary_file.png");
+                File f = new File(getExternalCacheDir(), "temporary_file.png");
                 try {
                     f.createNewFile();
                     FileOutputStream fo = new FileOutputStream(f);
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
-                    Log.d("dbvivek","HEY");
+                    Log.d("dbvivek", "HEY");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 share.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(f));
-                share.putExtra(Intent.EXTRA_TEXT,pokemon.getName().toUpperCase() + "\n" +
-                        "WEIGHT  ->"+pokemon.getWeight()+"\n" +
-                        "HEIGHT  ->"+pokemon.getHeight()+"\n" +
-                        "BASE_EXPERIENCE  ->"+pokemon.getBase_experience());
+                share.putExtra(Intent.EXTRA_TEXT, pokemon.getName().toUpperCase() + "\n" +
+                        "WEIGHT  ->" + pokemon.getWeight() + "\n" +
+                        "HEIGHT  ->" + pokemon.getHeight() + "\n" +
+                        "BASE_EXPERIENCE  ->" + pokemon.getBase_experience());
 
 
 //                share.putExtra(Intent.EXTRA_TEXT,"WEIGHT  ->"pokemon.getHeight());

@@ -2,6 +2,7 @@ package com.vivek.pokedex.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +12,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.vivek.pokedex.Db_Handler.DbHandler;
 import com.vivek.pokedex.FrontActivity;
 import com.vivek.pokedex.PokeActivity;
 import com.vivek.pokedex.R;
@@ -27,6 +30,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private Context context;
     private List<Pokemon> pokemonList;
     private List<Pokemon> pokemonListFull;
+    List<Pokemon >FavpokemonList;
 
 
 
@@ -40,6 +44,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @NonNull
     @Override
     public RecyclerViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        final DbHandler db = new DbHandler(context);
+        FavpokemonList =  db.getFavPokemons();
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row,parent,false);
         return new ViewHolder(view);
     }
@@ -48,6 +54,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.ViewHolder holder, int position) {
         Pokemon pokemon =  pokemonList.get(position);
         int id = pokemon.getPrimaryId();
+        for(Pokemon favpokemon : FavpokemonList){
+            Log.d("testing",pokemon.getName()   +   favpokemon.getName());
+            if(favpokemon.getName().equals(pokemon.getName())){
+                holder.favImage.setImageResource(R.drawable.ic_star_black_24dp);
+            }
+        }
 
         holder.PokemonName.setText("(#" + id + ") "+pokemon.getName());
     }
@@ -66,7 +78,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             itemView.setOnClickListener(this);
 
             PokemonName = itemView.findViewById(R.id.pokemonName);
-
+            favImage = itemView.findViewById(R.id.star);
         }
 
 
@@ -78,6 +90,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             Intent intent = new Intent(context,PokeActivity.class);
             intent.putExtra("MSG",pokemon.getName());
             context.startActivity(intent);
+
 
         }
     }

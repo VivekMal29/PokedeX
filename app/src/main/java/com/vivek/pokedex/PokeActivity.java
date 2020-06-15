@@ -20,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -53,7 +54,7 @@ public class PokeActivity extends AppCompatActivity {
     int pokeId = Pokemons.pokeId;
     Api api;
     ImageView pokeImage;
-    ArrayList<String > listOfLocationUrl;
+    ArrayList<String> listOfLocationUrl;
     TextView pokeName;
     TextView height;
     TextView weight;
@@ -62,19 +63,24 @@ public class PokeActivity extends AppCompatActivity {
     ListView locationList;
     LayoutParams list;
     LayoutParams list1;
-    float listHeight=0;
-    float listHeight1=0;
-    int evulution_chain_id=1;
+    float listHeight = 0;
+    float listHeight1 = 0;
+    int evulution_chain_id = 1;
     public static Pokemon pokemon;
 
-    public static int add =0;
+    public static int add = 0;
 
-
+    ProgressBar progressBar;
 
     String nameOfPoke;
 
-    byte[]  bytes;
-    int flag=0;
+    byte[] bytes;
+    int flag = 0;
+
+    Boolean isPoke = false;
+    Boolean isPicasso = false;
+    Boolean isEvoluiton = false;
+    ImageView pokeStar;
 
     ConstraintLayout constraintLayout;
     RecyclerView recyclerView;
@@ -86,7 +92,9 @@ public class PokeActivity extends AppCompatActivity {
     ArrayList<Pokemon.Type> typeArrayList;
 
     final DbHandler db = new DbHandler(PokeActivity.this);
+    List<Pokemon> favPokemons;
     private GestureDetectorCompat gestureDetectorCompat = null;
+    TextView swipe;
 
 
     @Override
@@ -96,13 +104,16 @@ public class PokeActivity extends AppCompatActivity {
 
         GestureDectecter gestureDectecter = new GestureDectecter();
         gestureDectecter.setActivity(this);
-        gestureDetectorCompat = new GestureDetectorCompat(this,gestureDectecter);
+        gestureDetectorCompat = new GestureDetectorCompat(this, gestureDectecter);
 
         Intent intent = getIntent();
-        Bundle b= intent.getExtras();
+        Bundle b = intent.getExtras();
 
-        if(b != null){
-                nameOfPoke = (String) b.get("MSG");
+        isEvoluiton = false;
+        isPoke = false;
+
+        if (b != null) {
+            nameOfPoke = (String) b.get("MSG");
         }
 
 
@@ -113,6 +124,7 @@ public class PokeActivity extends AppCompatActivity {
         itemList = findViewById(R.id.itemList);
         locationList = findViewById(R.id.locationList);
         constraintLayout = findViewById(R.id.pokeLayout);
+        swipe = findViewById(R.id.swipe);
 
         recyclerView = findViewById(R.id.evolutionList);
         recyclerView.setHasFixedSize(true);
@@ -129,13 +141,14 @@ public class PokeActivity extends AppCompatActivity {
 //        list = itemList.getLayoutParams();
 //        list1 = locationList.getLayoutParams();
 
-
+        progressBar = findViewById(R.id.progressBar);
+        pokeStar = findViewById(R.id.pokeStar);
 //        listHeight =  (45 * ((float) this.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT));
 //        listHeight1 =  (45 * ((float) this.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT));
 
 
         base_experience = findViewById(R.id.base_experience);
-
+        constraintLayout.setAlpha((float) 0.1);
 
 //        final ArrayList<String> listOfItem = new ArrayList<>();
 //        final ArrayList<String> listOfLocation = new ArrayList<>();
@@ -154,20 +167,26 @@ public class PokeActivity extends AppCompatActivity {
 
         Call<Pokemon> call = api.getPokemonData(nameOfPoke);
 
+
         call.enqueue(new Callback<Pokemon>() {
             @Override
             public void onResponse(Call<Pokemon> call, Response<Pokemon> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
 
                     pokemon = response.body();
 
 
-
-
 //                    Log.d("DVivek",pokemon.getName());
-                    ArrayList<Pokemon.Held_Items> held_items =  pokemon.getHeld_items();
+                    ArrayList<Pokemon.Held_Items> held_items = pokemon.getHeld_items();
 //                    Log.d("DVivek",Integer.toString(held_items.size()));
-
+                    favPokemons = db.getFavPokemons();
+                    for (Pokemon favpokemon : favPokemons) {
+//                        Log.d("testing",pokemon.getName()   +   favpokemon.getName());
+                        if (favpokemon.getName().equals(pokemon.getName())) {
+                            pokeStar.setImageResource(R.drawable.ic_star_black_24dp);
+                            swipe.setText("swipe down to remove");
+                        }
+                    }
 
                     Log.d("vytes", String.valueOf(pokemon.getBytes()));
 
@@ -183,20 +202,20 @@ public class PokeActivity extends AppCompatActivity {
 
 
                     ArrayList<Pokemon.Types> types = pokemon.getTypes();
-                    for(Pokemon.Types type : types){
+                    for (Pokemon.Types type : types) {
                         Pokemon.Type typeOfPoke = type.getType();
                         String name = typeOfPoke.getName();
 //                        Log.d("DVivek",name);
                         typeArrayList.add(typeOfPoke);
                     }
-                    recyclerViewAdapterPokeType = new RecyclerViewAdapterPokeType(PokeActivity.this,typeArrayList);
+                    recyclerViewAdapterPokeType = new RecyclerViewAdapterPokeType(PokeActivity.this, typeArrayList);
                     recyclerViewType.setAdapter(recyclerViewAdapterPokeType);
 
                     ArrayList<Pokemon.statObject> statObjects = pokemon.getStats();
-                    for(Pokemon.statObject statObject : statObjects){
+                    for (Pokemon.statObject statObject : statObjects) {
                         Pokemon.stat stat = statObject.getStat();
                         String name = stat.getName();
-                        Log.d("DVivek",name);
+                        Log.d("DVivek", name);
                         int baseState = statObject.getBase_stat();
                         Log.d("DVivek", String.valueOf(baseState));
                     }
@@ -218,20 +237,26 @@ public class PokeActivity extends AppCompatActivity {
                 Picasso.get()
                         .load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokeId + ".png")
                         .centerCrop()
-                        .resize(144,118)
+                        .resize(144, 118)
                         .into(new Target() {
                             @Override
-                            public void onBitmapLoaded (final Bitmap bitmap, Picasso.LoadedFrom from){
+                            public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
                                 /* Save the bitmap or do something with it here */
                                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                                 bytes = stream.toByteArray();
                                 //Set it in the ImageView
                                 pokemon.setBytes(bytes);
-                                Log.d("vytes" , String.valueOf(bytes));
-                                Bitmap bitmap1 = BitmapFactory.decodeByteArray(bytes , 0, bytes .length);
+                                Log.d("vytes", String.valueOf(bytes));
+                                Bitmap bitmap1 = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
                                 pokeImage.setImageBitmap(bitmap1);
+                                isPoke = true;
+
+                                if (isPoke && isEvoluiton) {
+                                    progressBar.setVisibility(View.INVISIBLE);
+                                    constraintLayout.setAlpha(1);
+                                }
 
                             }
 
@@ -262,21 +287,21 @@ public class PokeActivity extends AppCompatActivity {
         pokemon_specieCall.enqueue(new Callback<Pokemon_Specie>() {
             @Override
             public void onResponse(Call<Pokemon_Specie> call, Response<Pokemon_Specie> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
                     Pokemon_Specie pokemonSpecie = response.body();
                     Pokemon_Specie.Evolution evolution_chain = pokemonSpecie.getEvolution_chain();
                     String url;
                     url = evolution_chain.getUrl();
 
                     String[] urlPartes = url.split("/");
-                    evulution_chain_id=Integer.parseInt(urlPartes[urlPartes.length - 1]);
+                    evulution_chain_id = Integer.parseInt(urlPartes[urlPartes.length - 1]);
                     Log.d("dVivek", String.valueOf(evulution_chain_id));
 
                     Call<Evolution_Chain> chainCall = api.getEvolutionChain(evulution_chain_id);
                     chainCall.enqueue(new Callback<Evolution_Chain>() {
                         @Override
                         public void onResponse(Call<Evolution_Chain> call, Response<Evolution_Chain> response) {
-                            if(response.isSuccessful()){
+                            if (response.isSuccessful()) {
                                 Evolution_Chain evolution_chain = response.body();
                                 Evolution_Chain.Chain chain = evolution_chain.getChain();
                                 Evolution_Chain.Species species = chain.getSpecies();
@@ -285,7 +310,7 @@ public class PokeActivity extends AppCompatActivity {
                                 evolution_chains.add(species);
 
                                 ArrayList<Evolution_Chain.Evolves_to> evolves_tos = chain.getEvolves_to();
-                                while(evolves_tos.size()!=0){
+                                while (evolves_tos.size() != 0) {
                                     Evolution_Chain.Evolves_to evolves_to = evolves_tos.get(0);
                                     Evolution_Chain.Species species1 = evolves_to.getSpecies();
                                     String name2 = species1.getName();
@@ -295,15 +320,19 @@ public class PokeActivity extends AppCompatActivity {
                                 }
 
 
-
-                            }
-
-                            else{
-                                Log.d("DVivek","failed !!!!");
+                            } else {
+                                Log.d("DVivek", "failed !!!!");
                             }
                             Log.d("evolution number", String.valueOf(evolution_chains.size()));
-                            recyclerViewAdapterEvolution = new RecyclerViewAdapterEvolution(PokeActivity.this,evolution_chains);
+                            recyclerViewAdapterEvolution = new RecyclerViewAdapterEvolution(PokeActivity.this, evolution_chains);
                             recyclerView.setAdapter(recyclerViewAdapterEvolution);
+
+                            isEvoluiton = true;
+
+                            if (isPoke && isEvoluiton) {
+                                progressBar.setVisibility(View.INVISIBLE);
+                                constraintLayout.setAlpha(1);
+                            }
                         }
 
                         @Override
@@ -311,8 +340,7 @@ public class PokeActivity extends AppCompatActivity {
 
                         }
                     });
-                }
-                else{
+                } else {
                     Log.d("dVivek", "incomplete");
                 }
 
@@ -323,7 +351,6 @@ public class PokeActivity extends AppCompatActivity {
                 Log.d("dVivek", String.valueOf(t));
             }
         });
-
 
 
 //        Call<List<LocationRequest>> call2 = api.getLocation(pokeId);
@@ -368,20 +395,18 @@ public class PokeActivity extends AppCompatActivity {
 //                .into(pokeImage);
 
 
-
-
     }
 
     class GestureDectecter extends GestureDetector.SimpleOnGestureListener {
 
-        private  int MIN_SWIPE_DISTANCE_X = 100;
-        private  int MIN_SWIPE_DISTANCE_Y = 100;
-        private  int MAX_SWIPE_DISTANCE_X = 1000;
-        private  int MAX_SWIPE_DISTANCE_Y = 1000;
+        private int MIN_SWIPE_DISTANCE_X = 100;
+        private int MIN_SWIPE_DISTANCE_Y = 100;
+        private int MAX_SWIPE_DISTANCE_X = 1000;
+        private int MAX_SWIPE_DISTANCE_Y = 1000;
 
         private PokeActivity activity = null;
 
-        int add= PokeActivity.add;
+        int add = PokeActivity.add;
 
         public PokeActivity getActivity() {
             return activity;
@@ -402,34 +427,39 @@ public class PokeActivity extends AppCompatActivity {
             float deltaYAbs = Math.abs(e1.getY() - e2.getY());
 
 
-
-
-            if(deltaYAbs>=MIN_SWIPE_DISTANCE_Y && deltaYAbs<=MAX_SWIPE_DISTANCE_Y){
+            if (deltaYAbs >= MIN_SWIPE_DISTANCE_Y && deltaYAbs <= MAX_SWIPE_DISTANCE_Y) {
                 //swipe up
-                List<Pokemon> FavpokemonList =  db.getFavPokemons();
-                for(Pokemon favpokemon : FavpokemonList){
-                    if(pokemon.getName().equals(favpokemon.getName())){
-                        flag=1;
+                List<Pokemon> FavpokemonList = db.getFavPokemons();
+                for (Pokemon favpokemon : FavpokemonList) {
+                    if (pokemon.getName().equals(favpokemon.getName())) {
+                        flag = 1;
                     }
                 }
-                if(deltaY>0){
-                    if(flag==1){
+                if (deltaY > 0) {
+                    if (flag == 1) {
                         Toast.makeText(activity, "Already in Favourites", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
+                    } else {
                         db.addToFavourites(pokemon);
+                        pokeStar.setImageResource(R.drawable.ic_star_black_24dp);
+                        swipe.setText("swipe down to remove");
                         add = 1;
                         Toast.makeText(activity, "Added to Favourites", Toast.LENGTH_SHORT).show();
                     }
 
-                }
-                else{                   //swipe down
-                    Toast.makeText(activity, "swipe up to add to favourites!!", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (flag == 1) {
+                        db.deletePokemonByName(pokemon.getName());
+                        pokeStar.setImageResource(R.drawable.ic_star_border_black_24dp);
+                        swipe.setText("swipe up to add to favourites");
+                        Toast.makeText(activity, "Removed Successfully", Toast.LENGTH_SHORT).show();
+                        flag = 0;
+                    } else {
+
+                        Toast.makeText(activity, "Not on Favourites", Toast.LENGTH_SHORT).show();
+                    }//swipe down
+
                 }
             }
-
-
-
 
 
             return true;
@@ -440,5 +470,13 @@ public class PokeActivity extends AppCompatActivity {
     public boolean onTouchEvent(MotionEvent event) {
         gestureDetectorCompat.onTouchEvent(event);
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        Intent intent = new Intent(this, FrontActivity.class);
+        startActivity(intent);
     }
 }
