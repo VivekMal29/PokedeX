@@ -161,7 +161,7 @@ public class Pokemons extends Fragment {
 //            }
 //        });
         api = retrofit.create(Api.class);
-        Call<PokemonRequest> call = api.obtenerListPokemon(10,0);
+        Call<PokemonRequest> call = api.obtenerListPokemon(807,0);
         call.enqueue(new Callback<PokemonRequest>() {
             @Override
             public void onResponse(Call<PokemonRequest> call, Response<PokemonRequest> response) {
