@@ -26,6 +26,9 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.vivek.pokedex.Api;
@@ -51,27 +54,31 @@ public class Pokemons extends Fragment {
 
     private PokemonViewModel pokemonViewModel;
 
-    public static int pokeId ;
-//    ListView pokemonList;
+    public static int pokeId;
+    //    ListView pokemonList;
     ArrayList<String> arrayList = new ArrayList<>();
     Api api;
     RecyclerView recyclerView;
-   public static RecyclerViewAdapter recyclerViewAdapter;
-   ArrayList<Pokemon> pokemonArrayList ;
+    public static RecyclerViewAdapter recyclerViewAdapter;
+    ArrayList<Pokemon> pokemonArrayList;
     public static byte[] bytes;
     int offset;
     Retrofit retrofit;
-    Boolean isScrolling=false;
+    Boolean isScrolling = false;
     ProgressBar progressBar;
     ConstraintLayout constraintLayout;
     ImageView favourite;
+    ImageView viewImage;
+
+    Boolean isFav;
+    List<Pokemon> FavpokemonList;
+    LottieAnimationView  lottieAnimationView;
 
 
-    List<Pokemon> FavpokemonList ;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-       pokemonViewModel =
+        pokemonViewModel =
                 ViewModelProviders.of(this).get(PokemonViewModel.class);
         View root = inflater.inflate(R.layout.fragment_pokemon, container, false);
         final TextView textView = root.findViewById(R.id.text_pokemon);
@@ -81,6 +88,8 @@ public class Pokemons extends Fragment {
 
             }
         });
+        lottieAnimationView = root.findViewById(R.id.av_loader_front);
+        lottieAnimationView.setAnimation("loader.json" );
         retrofit = new Retrofit.Builder()
                 .baseUrl(" https://pokeapi.co/api/v2/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -88,12 +97,13 @@ public class Pokemons extends Fragment {
 
         favourite = root.findViewById(R.id.star);
         final DbHandler db = new DbHandler(getContext());
-        FavpokemonList =  db.getFavPokemons();
+
+        FavpokemonList = db.getFavPokemons();
 
 
         FrontActivity.frangment = 0;
         constraintLayout = root.findViewById(R.id.pokeLayout);
-
+        viewImage = root.findViewById(R.id.viewImage);
 
         //recyclerView Initialisation
         recyclerView = root.findViewById(R.id.pokemonList);
@@ -138,15 +148,9 @@ public class Pokemons extends Fragment {
 //            }
 //        });
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_dropdown_item_1line,arrayList);
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, arrayList);
 //        pokemonList = root.findViewById(R.id.pokemonList);
         pokemonArrayList = new ArrayList<>();
-
-
-
-
-
-
 
 
 //        final Intent intent = new Intent(getActivity(), PokeActivity.class);
@@ -161,21 +165,29 @@ public class Pokemons extends Fragment {
 //            }
 //        });
         api = retrofit.create(Api.class);
-        Call<PokemonRequest> call = api.obtenerListPokemon(807,0);
+        Call<PokemonRequest> call = api.obtenerListPokemon(807, 0);
         call.enqueue(new Callback<PokemonRequest>() {
             @Override
             public void onResponse(Call<PokemonRequest> call, Response<PokemonRequest> response) {
-                if(!response.isSuccessful()){
-                    Log.d("Vivek",Integer.toString(response.code()));
+                if (!response.isSuccessful()) {
+                    Log.d("Vivek", Integer.toString(response.code()));
 
                 }
 
-                isScrolling=true;
+                isScrolling = true;
                 PokemonRequest pokemonRequest = response.body();
                 ArrayList<Pokemon> listPokemon = pokemonRequest.getResults();
                 arrayList.clear();
-                for(Pokemon pokemon: listPokemon){
-
+                for (Pokemon pokemon : listPokemon) {
+                    for(Pokemon favPokemon : FavpokemonList){
+                        if(favPokemon.getName().equals(pokemon.getName())){
+                            pokemon.setFav(true);
+                            Log.d("bugg", "this is fav"+ pokemon.getName());
+                        }
+                        else {
+                            pokemon.setFav(false);
+                        }
+                    }
 
                     String name = pokemon.getName();
                     String url = pokemon.getUrl();
@@ -185,20 +197,23 @@ public class Pokemons extends Fragment {
                     int id = pokemon.getPrimaryId();
                     pokeId = id;
 
-                    Log.d("Vivek",Integer.toString(id));
-                    Log.d("Vivek",name);
-                    arrayList.add( "(#" + id + ") "+name);
+                    Log.d("Vivek", Integer.toString(id));
+                    Log.d("Vivek", name);
+                    arrayList.add("(#" + id + ") " + name);
 //                    pokemonList.setAdapter(arrayAdapter);
+
+
+
+
                     pokemonArrayList.add(pokemon);
 
                 }
                 //Use your recyclerView here
-                recyclerViewAdapter = new RecyclerViewAdapter(getContext(),listPokemon);
+                recyclerViewAdapter = new RecyclerViewAdapter(getContext(), pokemonArrayList);
                 recyclerView.setAdapter(recyclerViewAdapter);
 
-
-
-
+                lottieAnimationView.pauseAnimation();
+                lottieAnimationView.setVisibility(View.INVISIBLE);
 
 
             }
@@ -209,9 +224,14 @@ public class Pokemons extends Fragment {
             }
 
 
-
         });
 
+//        Glide.with(this)
+//                .load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + pokeId + ".png")
+//                .centerCrop()
+//                .override(144,118)
+//                .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                .into(viewImage);
 
 
         return root;

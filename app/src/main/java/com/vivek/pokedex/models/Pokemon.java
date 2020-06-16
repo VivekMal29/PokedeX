@@ -23,6 +23,15 @@ public class Pokemon {
     public Pokemon(int id) {
         this.id = id;
     }
+    private boolean isFav;
+
+    public boolean isFav() {
+        return isFav;
+    }
+
+    public void setFav(boolean fav) {
+        isFav = fav;
+    }
 
     public byte[] getBytes() {
         return bytes;

@@ -5,6 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/backgr"
     tools:context=".Fav_Poke_Activity">
 
 
@@ -160,7 +161,9 @@
         android:id="@+id/deletePokemon"
         android:layout_width="248dp"
         android:layout_height="41dp"
+        android:background="@drawable/button"
         android:text="Remove From Favourites"
+        android:textColor="@android:color/background_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
@@ -170,14 +173,14 @@
 
     <Button
         android:id="@+id/shareImage"
-        android:layout_width="155dp"
-        android:layout_height="37dp"
+        android:layout_width="260dp"
+        android:layout_height="38dp"
         android:layout_marginTop="24dp"
+        android:background="@drawable/card_view"
         android:text=" share details"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

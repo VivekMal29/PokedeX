@@ -56,7 +56,7 @@ public class Fav_Poke_Activity extends AppCompatActivity {
         final Intent intent = getIntent();
         Bundle b = intent.getExtras();
 
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 

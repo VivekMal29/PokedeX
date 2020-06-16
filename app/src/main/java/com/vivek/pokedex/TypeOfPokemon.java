@@ -40,7 +40,7 @@ public class TypeOfPokemon extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_type_of_pokemon);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 //        listOfPokemon = findViewById(R.id.listOfPokemon);
 //        final ArrayList<String> listOfPoke= new ArrayList<>();
 //        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,listOfPoke);

@@ -2,9 +2,12 @@ package com.vivek.pokedex;
 
 import android.os.Bundle;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,6 +50,7 @@ public class FrontActivity extends AppCompatActivity {
 
     public static int frangment;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +65,9 @@ public class FrontActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
 //            }
 //        });
+
+
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -76,6 +83,8 @@ public class FrontActivity extends AppCompatActivity {
 
 
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

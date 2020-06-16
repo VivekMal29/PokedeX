@@ -6,6 +6,7 @@ import androidx.core.view.GestureDetectorCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,6 +24,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.squareup.picasso.Picasso;
@@ -70,7 +72,7 @@ public class PokeActivity extends AppCompatActivity {
 
     public static int add = 0;
 
-    ProgressBar progressBar;
+//    ProgressBar progressBar;
 
     String nameOfPoke;
 
@@ -81,7 +83,7 @@ public class PokeActivity extends AppCompatActivity {
     Boolean isPicasso = false;
     Boolean isEvoluiton = false;
     ImageView pokeStar;
-
+    LottieAnimationView animationView ;
     ConstraintLayout constraintLayout;
     RecyclerView recyclerView;
     RecyclerViewAdapterEvolution recyclerViewAdapterEvolution;
@@ -106,6 +108,8 @@ public class PokeActivity extends AppCompatActivity {
         gestureDectecter.setActivity(this);
         gestureDetectorCompat = new GestureDetectorCompat(this, gestureDectecter);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
 
@@ -116,6 +120,8 @@ public class PokeActivity extends AppCompatActivity {
             nameOfPoke = (String) b.get("MSG");
         }
 
+        animationView = findViewById(R.id.av_loader);
+        animationView.setAnimation("loader.json");
 
         pokeImage = findViewById(R.id.pokeImage);
         pokeName = findViewById(R.id.pokeName);
@@ -141,14 +147,13 @@ public class PokeActivity extends AppCompatActivity {
 //        list = itemList.getLayoutParams();
 //        list1 = locationList.getLayoutParams();
 
-        progressBar = findViewById(R.id.progressBar);
+//        progressBar = findViewById(R.id.progressBar);
         pokeStar = findViewById(R.id.pokeStar);
 //        listHeight =  (45 * ((float) this.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT));
 //        listHeight1 =  (45 * ((float) this.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT));
 
 
         base_experience = findViewById(R.id.base_experience);
-        constraintLayout.setAlpha((float) 0.1);
 
 //        final ArrayList<String> listOfItem = new ArrayList<>();
 //        final ArrayList<String> listOfLocation = new ArrayList<>();
@@ -232,6 +237,7 @@ public class PokeActivity extends AppCompatActivity {
 //                    }
 //                    itemList.setLayoutParams(list);
 //                    itemList.setAdapter(arrayAdapter);
+                    pokeId = pokemon.getId();
 
                 }
                 Picasso.get()
@@ -254,7 +260,9 @@ public class PokeActivity extends AppCompatActivity {
                                 isPoke = true;
 
                                 if (isPoke && isEvoluiton) {
-                                    progressBar.setVisibility(View.INVISIBLE);
+//                                    progressBar.setVisibility(View.INVISIBLE);
+                                    animationView.pauseAnimation();
+                                    animationView.setVisibility(View.INVISIBLE);
                                     constraintLayout.setAlpha(1);
                                 }
 
@@ -330,7 +338,8 @@ public class PokeActivity extends AppCompatActivity {
                             isEvoluiton = true;
 
                             if (isPoke && isEvoluiton) {
-                                progressBar.setVisibility(View.INVISIBLE);
+                                animationView.pauseAnimation();
+                                animationView.setVisibility(View.INVISIBLE);
                                 constraintLayout.setAlpha(1);
                             }
                         }
@@ -464,6 +473,7 @@ public class PokeActivity extends AppCompatActivity {
 
             return true;
         }
+
     }
 
     @Override

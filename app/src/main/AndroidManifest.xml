@@ -12,8 +12,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RegionActivity"></activity>
-        <activity android:name=".Fav_Poke_Activity" />
+        <activity android:name=".RegionActivity"
+            android:parentActivityName=".FrontActivity"></activity>
+        <activity android:name=".Fav_Poke_Activity"
+            android:parentActivityName=".FrontActivity"></activity>
         <activity
             android:name=".FrontActivity"
             android:label="@string/title_activity_front"
@@ -24,8 +26,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".TypeOfPokemon" />
-        <activity android:name=".PokeActivity" />
+        <activity android:name=".TypeOfPokemon"
+            android:parentActivityName=".FrontActivity"></activity>
+        <activity android:name=".PokeActivity"
+            android:parentActivityName=".FrontActivity"></activity>
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>
